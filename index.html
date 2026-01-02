@@ -37,7 +37,7 @@ body {
     will-change: transform;
 }
 
-/* Penutup sisi kanan (ANTI GARIS PUTIH) */
+/* Penutup sisi kanan */
 .page::after {
     content: "";
     position: absolute;
@@ -74,10 +74,15 @@ body {
 
 <body>
 
+<!-- AUDIO BACKGROUND -->
+<audio id="bgm" src="audio/background.mp3" autoplay loop></audio>
+
 <div class="book" id="book"></div>
 
 <script>
 const book = document.getElementById("book");
+const bgm = document.getElementById("bgm");
+
 const images = [
     "images/page1.jpg",
     "images/page2.jpg",
@@ -93,6 +98,7 @@ const images = [
 
 let currentPage = 0;
 
+// buat halaman
 for (let i = 0; i < images.length; i++) {
     const page = document.createElement("div");
     page.className = "page";
@@ -106,12 +112,27 @@ for (let i = 0; i < images.length; i++) {
     book.appendChild(page);
 }
 
+// auto-play fix (jika browser blok)
+function forcePlayAudio() {
+    if (bgm.paused) {
+        bgm.play().catch(() => {});
+    }
+}
+
 let startX = 0;
 
-book.addEventListener("touchstart", e => startX = e.touches[0].clientX);
+book.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+    forcePlayAudio();
+});
+
 book.addEventListener("touchend", e => handleSwipe(startX - e.changedTouches[0].clientX));
 
-book.addEventListener("mousedown", e => startX = e.clientX);
+book.addEventListener("mousedown", e => {
+    startX = e.clientX;
+    forcePlayAudio();
+});
+
 book.addEventListener("mouseup", e => handleSwipe(startX - e.clientX));
 
 function handleSwipe(distance) {
