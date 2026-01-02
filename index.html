@@ -19,8 +19,8 @@ body {
 /* Container buku */
 .book {
     position: relative;
-    width: 250px;
-    height: 444px;
+    width: 260px;
+    height: 462px;
     perspective: 2000px;
     overflow: hidden;
     background: url("images/book-bg.jpg") center / cover no-repeat;
@@ -37,7 +37,7 @@ body {
     will-change: transform;
 }
 
-/* Penutup sisi kanan */
+/* Penutup sisi kanan (anti garis putih) */
 .page::after {
     content: "";
     position: absolute;
@@ -74,14 +74,18 @@ body {
 
 <body>
 
-<!-- AUDIO BACKGROUND -->
+<!-- AUDIO -->
 <audio id="bgm" src="audio/background.mp3" autoplay loop></audio>
+<audio id="flipNext" src="audio/flip-next.mp3" preload="auto"></audio>
+<audio id="flipPrev" src="audio/flip-prev.mp3" preload="auto"></audio>
 
 <div class="book" id="book"></div>
 
 <script>
 const book = document.getElementById("book");
 const bgm = document.getElementById("bgm");
+const flipNext = document.getElementById("flipNext");
+const flipPrev = document.getElementById("flipPrev");
 
 const images = [
     "images/page1.jpg",
@@ -98,6 +102,23 @@ const images = [
 
 let currentPage = 0;
 
+// paksa audio jalan setelah interaksi
+function forcePlayAudio() {
+    if (bgm.paused) {
+        bgm.play().catch(() => {});
+    }
+}
+
+function playFlipNext() {
+    flipNext.currentTime = 0;
+    flipNext.play().catch(() => {});
+}
+
+function playFlipPrev() {
+    flipPrev.currentTime = 0;
+    flipPrev.play().catch(() => {});
+}
+
 // buat halaman
 for (let i = 0; i < images.length; i++) {
     const page = document.createElement("div");
@@ -110,13 +131,6 @@ for (let i = 0; i < images.length; i++) {
     `;
 
     book.appendChild(page);
-}
-
-// auto-play fix (jika browser blok)
-function forcePlayAudio() {
-    if (bgm.paused) {
-        bgm.play().catch(() => {});
-    }
 }
 
 let startX = 0;
@@ -141,11 +155,13 @@ function handleSwipe(distance) {
     if (distance > 40 && currentPage < pages.length - 1) {
         pages[currentPage].classList.add("flipped");
         currentPage++;
+        playFlipNext();
     }
 
     if (distance < -40 && currentPage > 0) {
         currentPage--;
         pages[currentPage].classList.remove("flipped");
+        playFlipPrev();
     }
 }
 </script>
